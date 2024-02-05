@@ -38,6 +38,9 @@ Config = {
     "Rains" : { # Config for rains
         "Channel" : "1200137196766765221" # Set to the id the channel rains will be in
     },
+    "AdminCommands" : {
+        "UserID" : ["1175461563554091009"] # if more than 1 do this: ["1st user id", "2nd user id"]
+    },
     "Upgrader": { # Config for upgrader
         "House": 0.95 # house edge (winnings*house)
     },
@@ -2038,27 +2041,73 @@ async def dice(interaction: discord.Interaction, bet: str):
     add_gems(uid, winnings)
     await interaction.response.send_message(embed=embed)
 
-@bot.tree.command(name="setbal",description="Administrator Required")
+allowed_user_ids = Config["AdminCommands"]["UserID"]
+
+@bot.tree.command(name="setbal", description="Restricted to specific users")
 async def setgems(interaction: discord.Interaction, user: discord.Member, gems: str):
     gems = suffix_to_int(gems)
     uid = str(user.id)
-    if interaction.user.guild_permissions.administrator:
-        set_gems(uid, gems)
-        await interaction.response.send_message(embed=succeed(f"Set <@{uid}> Gems To {add_suffix(gems)}"))
-@bot.tree.command(name="addbal",description="Administrator Required")
+    
+
+    if str(interaction.user.id) not in allowed_user_ids:
+
+        allowed_users = ", ".join(f"<@{user_id}>" for user_id in allowed_user_ids)
+        embed = discord.Embed(
+            title=":x: Error",
+            description=f"You do not have permission to use this command. Only the following users are allowed: {allowed_users}",
+            color=0xff0000
+        )
+        await interaction.response.send_message(embed=embed)
+        return
+    
+
+    set_gems(uid, gems)
+    await interaction.response.send_message(embed=succeed(f"**Gems:** {add_suffix(gems)}\n:inbox_tray: **Set Balance:**\n- **Receiver:** <@{uid}>\n- **Admin:** <@{interaction.user.id}>"))
+allowed_user_ids = Config["AdminCommands"]["UserID"] 
+
+@bot.tree.command(name="addbal", description="Restricted to specific users")
 async def addgems(interaction: discord.Interaction, user: discord.Member, gems: str):
     gems = suffix_to_int(gems)
     uid = str(user.id)
-    if interaction.user.guild_permissions.administrator:
-        add_gems(uid, gems)
-        await interaction.response.send_message(embed=succeed(f"Added {add_suffix(gems)} Gems To <@{uid}>"))
-@bot.tree.command(name="removebal",description="Administrator Required")
+    
+
+    if str(interaction.user.id) not in allowed_user_ids:
+
+        allowed_users = ", ".join(f"<@{user_id}>" for user_id in allowed_user_ids)
+        embed = discord.Embed(
+            title=":x: Error",
+            description=f"You do not have permission to use this command. Only the following users are allowed: {allowed_users}",
+            color=0xff0000
+        )
+        await interaction.response.send_message(embed=embed)
+        return
+    
+
+    add_gems(uid, gems)
+    await interaction.response.send_message(embed=succeed(f"**Gems:** {add_suffix(gems)}\n:inbox_tray: **Adding Gems:**\n- **Receiver:** <@{uid}>\n- **Admin:** <@{interaction.user.id}>"))
+
+allowed_user_ids = Config["AdminCommands"]["UserID"]
+
+@bot.tree.command(name="removebal", description="Restricted to specific users")
 async def removegems(interaction: discord.Interaction, user: discord.Member, gems: str):
     gems = suffix_to_int(gems)
     uid = str(user.id)
-    if interaction.user.guild_permissions.administrator:
-        subtract_gems(uid, gems)
-        await interaction.response.send_message(embed=succeed(f"Removed {add_suffix(gems)} Gems From <@{uid}>"))
+    
+
+    if str(interaction.user.id) not in allowed_user_ids:
+
+        allowed_users = ", ".join(f"<@{user_id}>" for user_id in allowed_user_ids)
+        embed = discord.Embed(
+            title=":x: Error",
+            description=f"You do not have permission to use this command. Only the following users are allowed: {allowed_users}",
+            color=0xff0000
+        )
+        await interaction.response.send_message(embed=embed)
+        return
+    
+
+    subtract_gems(uid, gems)
+    await interaction.response.send_message(embed=succeed(f"Removed {add_suffix(gems)} Gems From <@{uid}>"))
 
 from multiprocessing import Process
 
