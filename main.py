@@ -1174,7 +1174,7 @@ async def mines(interaction: discord.Interaction, bet: str, bombs: int) :
         subtract_gems(uid, bet)
         af = get_affiliate(str(interaction.user.id))
         add_gems(af, bet * 0.01)
-        board = generate_board(mines_amount)
+        board = generate_board(bombs)
         userboard = [
             ["", "", "", "", ""],
             ["", "", "", "", ""],
